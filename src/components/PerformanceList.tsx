@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
-import { Plus, Calendar, Users, CreditCard as Edit, Trash2, DollarSign, Check, X, Wallet } from 'lucide-react';
+import { Plus, Calendar, Users, CreditCard as Edit, Trash2, DollarSign, Check, X, Wallet, FileText, Download } from 'lucide-react';
 import { PerformanceForm } from './PerformanceForm';
 import { PaymentModal } from './PaymentModal';
 import { api } from '../lib/api';
 import type { Performance, PerformanceWithAttendees } from '../lib/supabase';
+import { generateFullPerformancePDF, generateMusiciansOnlyPDF } from '../lib/pdfGenerator';
 
 export function PerformanceList() {
   const [performances, setPerformances] = useState<Performance[]>([]);
@@ -116,6 +117,26 @@ export function PerformanceList() {
     const totalCollected = performance.total_amount || 0;
     const totalToPay = getTotalToPay(performance);
     return totalCollected - totalToPay;
+  };
+
+  const handleDownloadFull = async (performance: Performance) => {
+    try {
+      const fullPerformance = await api.performances.getById(performance.id);
+      await generateFullPerformancePDF(fullPerformance);
+    } catch (error) {
+      console.error('Error generating PDF:', error);
+      alert('Error al generar el PDF');
+    }
+  };
+
+  const handleDownloadMusicians = async (performance: Performance) => {
+    try {
+      const fullPerformance = await api.performances.getById(performance.id);
+      await generateMusiciansOnlyPDF(fullPerformance);
+    } catch (error) {
+      console.error('Error generating PDF:', error);
+      alert('Error al generar el PDF');
+    }
   };
 
   return (
@@ -233,6 +254,20 @@ export function PerformanceList() {
                   >
                     <Wallet size={16} />
                     Pagos
+                  </button>
+                  <button
+                    onClick={() => handleDownloadFull(performance)}
+                    className="btn-action btn-pdf"
+                    title="Descargar PDF completo"
+                  >
+                    <FileText size={16} />
+                  </button>
+                  <button
+                    onClick={() => handleDownloadMusicians(performance)}
+                    className="btn-action btn-pdf"
+                    title="Descargar PDF de músicos"
+                  >
+                    <Download size={16} />
                   </button>
                   <button
                     onClick={() => handleEdit(performance)}

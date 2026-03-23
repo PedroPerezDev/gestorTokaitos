@@ -827,6 +827,16 @@
   background: var(--gold-glow);
 }
 
+.btn-action.btn-pdf {
+  background: var(--teal-dim);
+  border-color: var(--teal);
+  color: var(--teal);
+}
+
+.btn-action.btn-pdf:hover {
+  background: rgba(0, 201, 167, 0.2);
+}
+
 .btn-action.btn-danger:hover {
   background: var(--red-dim);
   border-color: var(--red);

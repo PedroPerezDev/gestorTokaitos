@@ -163,25 +163,63 @@ async function getMusiciansWithInstruments(performance: PerformanceWithAttendees
   const { supabase } = await import('./supabase');
   const musicians: MusicianWithInstrument[] = [];
 
-  for (const attendee of performance.attendees || []) {
-    if (attendee.type === 'musician' && attendee.id) {
-      const { data: musicianInstruments } = await supabase
-        .from('musician_instruments')
-        .select(`
-          instruments(name)
-        `)
-        .eq('musician_id', attendee.id);
+  const { data: attendance } = await supabase
+    .from('attendance')
+    .select(`
+      musician_id,
+      guest_name,
+      guest_instrument,
+      selected_instrument_id,
+      musicians(id, name),
+      instruments:selected_instrument_id(name)
+    `)
+    .eq('performance_id', performance.id);
 
-      const instrumentNames = musicianInstruments?.map((mi: any) => mi.instruments.name) || [];
+  if (!attendance) return [];
 
+  const musicianIds = attendance
+    .filter((att: any) => att.musician_id)
+    .map((att: any) => att.musician_id);
+
+  let allInstrumentsByMusician: any = {};
+  if (musicianIds.length > 0) {
+    const { data: musicianInstruments } = await supabase
+      .from('musician_instruments')
+      .select(`
+        musician_id,
+        instruments(id, name)
+      `)
+      .in('musician_id', musicianIds);
+
+    allInstrumentsByMusician = musicianInstruments?.reduce((acc: any, mi: any) => {
+      if (!acc[mi.musician_id]) {
+        acc[mi.musician_id] = [];
+      }
+      acc[mi.musician_id].push(mi.instruments.name);
+      return acc;
+    }, {}) || {};
+  }
+
+  for (const att of attendance) {
+    if (att.musician_id && att.musicians) {
+      const selectedInstrument = att.instruments?.name;
+
+      if (selectedInstrument) {
+        musicians.push({
+          name: att.musicians.name,
+          instruments: [selectedInstrument],
+        });
+      } else {
+        const allInstruments = allInstrumentsByMusician[att.musician_id] || [];
+        musicians.push({
+          name: att.musicians.name,
+          instruments: allInstruments,
+        });
+      }
+    } else if (att.guest_name) {
       musicians.push({
-        name: attendee.name,
-        instruments: instrumentNames,
-      });
-    } else if (attendee.type === 'guest') {
-      musicians.push({
-        name: attendee.name,
-        instruments: attendee.instrument ? [attendee.instrument] : [],
+        name: att.guest_name,
+        instruments: att.guest_instrument ? [att.guest_instrument] : [],
       });
     }
   }

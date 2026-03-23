@@ -206,7 +206,7 @@ export const api = {
       total_amount?: number;
       payment_collected?: boolean;
       default_payment_amount?: number;
-      attendees: Array<{ type: 'musician'; id: string } | { type: 'guest'; name: string; instrument?: string }>
+      attendees: Array<{ type: 'musician'; id: string; instrumentId?: string } | { type: 'guest'; name: string; instrument?: string }>
     }): Promise<Performance> {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('Not authenticated');
@@ -236,6 +236,7 @@ export const api = {
             return {
               performance_id: newPerformance.id,
               musician_id: attendee.id,
+              selected_instrument_id: attendee.instrumentId || null,
             };
           } else {
             return {
@@ -291,15 +292,46 @@ export const api = {
           musician_id,
           guest_name,
           guest_instrument,
+          selected_instrument_id,
           musicians (*)
         `)
         .eq('performance_id', id);
 
       if (attError) throw attError;
 
+      const musicianIds = attendance
+        .filter((att: any) => att.musician_id)
+        .map((att: any) => att.musician_id);
+
+      let instrumentsByMusician: any = {};
+      if (musicianIds.length > 0) {
+        const { data: musicianInstruments, error: instError } = await supabase
+          .from('musician_instruments')
+          .select(`
+            musician_id,
+            instruments(id, name)
+          `)
+          .in('musician_id', musicianIds);
+
+        if (instError) throw instError;
+
+        instrumentsByMusician = musicianInstruments.reduce((acc: any, mi: any) => {
+          if (!acc[mi.musician_id]) {
+            acc[mi.musician_id] = [];
+          }
+          acc[mi.musician_id].push(mi.instruments);
+          return acc;
+        }, {});
+      }
+
       const attendees = attendance.map((att: any) => {
         if (att.musician_id) {
-          return { type: 'musician', ...att.musicians };
+          return {
+            type: 'musician',
+            ...att.musicians,
+            instrumentId: att.selected_instrument_id,
+            instruments: instrumentsByMusician[att.musician_id] || [],
+          };
         } else {
           return {
             type: 'guest',
@@ -325,7 +357,7 @@ export const api = {
       total_amount?: number;
       payment_collected?: boolean;
       default_payment_amount?: number;
-      attendees: Array<{ type: 'musician'; id: string } | { type: 'guest'; name: string; instrument?: string }>
+      attendees: Array<{ type: 'musician'; id: string; instrumentId?: string } | { type: 'guest'; name: string; instrument?: string }>
     }): Promise<Performance> {
       const { data: updatedPerformance, error: perfError } = await supabase
         .from('performances')
@@ -367,6 +399,7 @@ export const api = {
             return {
               performance_id: id,
               musician_id: attendee.id,
+              selected_instrument_id: attendee.instrumentId || null,
             };
           } else {
             return {

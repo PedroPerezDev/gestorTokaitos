@@ -9,6 +9,8 @@ interface SelectedAttendee {
   id?: string;
   name: string;
   instrument?: string;
+  instrumentId?: string;
+  instruments?: Array<{ id: string; name: string }>;
 }
 
 interface PerformanceFormProps {
@@ -53,6 +55,8 @@ export function PerformanceForm({ performance, attendees = [], onClose, onSave }
             id: att.id,
             name: att.name,
             instrument: att.instrument,
+            instrumentId: att.instrumentId,
+            instruments: att.instruments,
           };
         } else {
           return {
@@ -93,7 +97,11 @@ export function PerformanceForm({ performance, attendees = [], onClose, onSave }
         default_payment_amount: defaultPaymentAmount ? parseFloat(defaultPaymentAmount) : 0,
         attendees: selectedAttendees.map(att => {
           if (att.type === 'musician' && att.id) {
-            return { type: 'musician' as const, id: att.id };
+            return {
+              type: 'musician' as const,
+              id: att.id,
+              instrumentId: att.instrumentId,
+            };
           } else {
             return {
               type: 'guest' as const,

@@ -7,6 +7,8 @@ interface SelectedAttendee {
   id?: string;
   name: string;
   instrument?: string;
+  instrumentId?: string;
+  instruments?: Array<{ id: string; name: string }>;
 }
 
 interface MusicianSelectorProps {
@@ -46,6 +48,8 @@ export function MusicianSelector({ musicians, selectedAttendees, onAttendeesChan
   }, []);
 
   const handleAddMusician = (musician: Musician) => {
+    const musicianInstruments = (musician as any).instruments || [];
+
     onAttendeesChange([
       ...selectedAttendees,
       {
@@ -53,11 +57,30 @@ export function MusicianSelector({ musicians, selectedAttendees, onAttendeesChan
         id: musician.id,
         name: musician.name,
         instrument: musician.instrument || undefined,
+        instruments: musicianInstruments,
+        instrumentId: musicianInstruments.length === 1 ? musicianInstruments[0].id : undefined,
       },
     ]);
     setSearchTerm('');
     setShowDropdown(false);
     inputRef.current?.focus();
+  };
+
+  const handleInstrumentChange = (index: number, instrumentId: string) => {
+    const updatedAttendees = [...selectedAttendees];
+    const attendee = updatedAttendees[index];
+
+    if (attendee.instruments) {
+      const selectedInstrument = attendee.instruments.find(i => i.id === instrumentId);
+      if (selectedInstrument) {
+        updatedAttendees[index] = {
+          ...attendee,
+          instrumentId,
+          instrument: selectedInstrument.name,
+        };
+        onAttendeesChange(updatedAttendees);
+      }
+    }
   };
 
   const handleAddGuest = (e: React.FormEvent) => {
@@ -180,13 +203,33 @@ export function MusicianSelector({ musicians, selectedAttendees, onAttendeesChan
         <div className="selected-attendees">
           {selectedAttendees.map((attendee, index) => (
             <div key={index} className="selected-attendee-chip">
-              <span className="chip-name">{attendee.name}</span>
-              {attendee.instrument && (
-                <span className="chip-instrument">({attendee.instrument})</span>
-              )}
-              {attendee.type === 'guest' && (
-                <span className="chip-badge">Invitado</span>
-              )}
+              <div className="chip-content">
+                <span className="chip-name">{attendee.name}</span>
+                {attendee.type === 'guest' && attendee.instrument && (
+                  <span className="chip-instrument">({attendee.instrument})</span>
+                )}
+                {attendee.type === 'guest' && (
+                  <span className="chip-badge">Invitado</span>
+                )}
+                {attendee.type === 'musician' && attendee.instruments && attendee.instruments.length > 1 && (
+                  <select
+                    value={attendee.instrumentId || ''}
+                    onChange={(e) => handleInstrumentChange(index, e.target.value)}
+                    className="chip-instrument-select"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <option value="">Seleccionar instrumento</option>
+                    {attendee.instruments.map((inst) => (
+                      <option key={inst.id} value={inst.id}>
+                        {inst.name}
+                      </option>
+                    ))}
+                  </select>
+                )}
+                {attendee.type === 'musician' && attendee.instruments && attendee.instruments.length === 1 && (
+                  <span className="chip-instrument">({attendee.instruments[0].name})</span>
+                )}
+              </div>
               <button
                 type="button"
                 onClick={() => handleRemoveAttendee(index)}

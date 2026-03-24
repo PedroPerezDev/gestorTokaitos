@@ -50,7 +50,7 @@ function App() {
       <nav className="navbar">
         <div className="navbar-brand">
           <Music size={32} />
-          <h1>Gestión de Banda</h1>
+          <h1>CharangApp</h1>
         </div>
 
         <button

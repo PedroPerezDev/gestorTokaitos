@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Plus, Calendar, Users, CreditCard as Edit, Trash2, DollarSign, Check, X, Wallet, FileText, Download } from 'lucide-react';
+import { Plus, Calendar, Users, CreditCard as Edit, Trash2, DollarSign, Check, X, Wallet, FileText, Download, ChevronDown } from 'lucide-react';
 import { PerformanceForm } from './PerformanceForm';
 import { PaymentModal } from './PaymentModal';
 import { api } from '../lib/api';
@@ -15,6 +15,7 @@ export function PerformanceList() {
   const [editingPerformance, setEditingPerformance] = useState<PerformanceWithAttendees | null>(null);
   const [paymentPerformance, setPaymentPerformance] = useState<Performance | null>(null);
   const [filter, setFilter] = useState<FilterType>('all');
+  const [filterDropdownOpen, setFilterDropdownOpen] = useState(false);
 
   const loadPerformances = async () => {
     setLoading(true);
@@ -226,7 +227,7 @@ export function PerformanceList() {
         </button>
       </div>
 
-      <div className="filter-bar" style={{ marginBottom: '24px' }}>
+      <div className="filter-bar-desktop" style={{ marginBottom: '24px' }}>
         <button
           onClick={() => setFilter('all')}
           className={`filter-btn ${filter === 'all' ? 'active' : ''}`}
@@ -257,6 +258,73 @@ export function PerformanceList() {
         >
           Músicos sin pagar
         </button>
+      </div>
+
+      <div className="filter-bar-mobile" style={{ marginBottom: '24px' }}>
+        <div className="filter-dropdown">
+          <button
+            onClick={() => setFilterDropdownOpen(!filterDropdownOpen)}
+            className="filter-dropdown-toggle"
+          >
+            <span>{
+              filter === 'all' ? 'Todas' :
+              filter === 'collected' ? 'Cobradas' :
+              filter === 'not-collected' ? 'No cobradas' :
+              filter === 'paid-musicians' ? 'Músicos pagados' :
+              'Músicos sin pagar'
+            }</span>
+            <ChevronDown size={16} />
+          </button>
+          {filterDropdownOpen && (
+            <div className="filter-dropdown-menu">
+              <button
+                onClick={() => {
+                  setFilter('all');
+                  setFilterDropdownOpen(false);
+                }}
+                className={filter === 'all' ? 'active' : ''}
+              >
+                Todas
+              </button>
+              <button
+                onClick={() => {
+                  setFilter('collected');
+                  setFilterDropdownOpen(false);
+                }}
+                className={filter === 'collected' ? 'active' : ''}
+              >
+                Cobradas
+              </button>
+              <button
+                onClick={() => {
+                  setFilter('not-collected');
+                  setFilterDropdownOpen(false);
+                }}
+                className={filter === 'not-collected' ? 'active' : ''}
+              >
+                No cobradas
+              </button>
+              <button
+                onClick={() => {
+                  setFilter('paid-musicians');
+                  setFilterDropdownOpen(false);
+                }}
+                className={filter === 'paid-musicians' ? 'active' : ''}
+              >
+                Músicos pagados
+              </button>
+              <button
+                onClick={() => {
+                  setFilter('unpaid-musicians');
+                  setFilterDropdownOpen(false);
+                }}
+                className={filter === 'unpaid-musicians' ? 'active' : ''}
+              >
+                Músicos sin pagar
+              </button>
+            </div>
+          )}
+        </div>
       </div>
 
       {loading ? (

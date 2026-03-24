@@ -317,7 +317,7 @@ export function Statistics() {
           {performancesInYear.length > 0 ? (
             <div className="dot-chart">
               <div className="dot-chart-container">
-                <svg className="dot-chart-svg" viewBox="0 0 100 100" preserveAspectRatio="none">
+                <svg className="dot-chart-svg-line" viewBox="0 0 100 100" preserveAspectRatio="none">
                   <polyline
                     points={monthlyData.map((data, index) => {
                       const maxCount = Math.max(...monthlyData.map(d => d.count), 1);
@@ -327,21 +327,6 @@ export function Statistics() {
                     }).join(' ')}
                     className="dot-chart-line"
                   />
-                  {monthlyData.map((data, index) => {
-                    if (data.count === 0) return null;
-                    const maxCount = Math.max(...monthlyData.map(d => d.count), 1);
-                    const x = ((index + 0.5) / 12) * 100;
-                    const y = 100 - ((data.count / maxCount) * 85);
-                    return (
-                      <circle
-                        key={index}
-                        cx={x}
-                        cy={y}
-                        r="1.5"
-                        className="dot-chart-point"
-                      />
-                    );
-                  })}
                 </svg>
                 <div className="dot-chart-grid">
                   {monthlyData.map((data, index) => {
@@ -351,17 +336,28 @@ export function Statistics() {
                       <div key={data.month} className="dot-chart-column">
                         <div className="dot-chart-bar" style={{ height: '200px', position: 'relative' }}>
                           {data.count > 0 && (
-                            <div
-                              className="dot-count-label"
-                              style={{
-                                bottom: `${(data.count / maxCount) * 170 + 10}px`,
-                                left: '50%',
-                                transform: 'translateX(-50%)',
-                                position: 'absolute',
-                              }}
-                            >
-                              {data.count}
-                            </div>
+                            <>
+                              <div
+                                className="dot-chart-point"
+                                style={{
+                                  bottom: `${(data.count / maxCount) * 170}px`,
+                                  left: '50%',
+                                  transform: 'translateX(-50%)',
+                                  position: 'absolute',
+                                }}
+                              />
+                              <div
+                                className="dot-count-label"
+                                style={{
+                                  bottom: `${(data.count / maxCount) * 170 + 10}px`,
+                                  left: '50%',
+                                  transform: 'translateX(-50%)',
+                                  position: 'absolute',
+                                }}
+                              >
+                                {data.count}
+                              </div>
+                            </>
                           )}
                         </div>
                         <span className="dot-chart-label">{monthName}</span>

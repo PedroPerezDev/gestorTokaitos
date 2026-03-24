@@ -427,7 +427,7 @@
   padding: 0 20px;
 }
 
-.dot-chart-svg {
+.dot-chart-svg-line {
   position: absolute;
   top: 0;
   left: 20px;
@@ -448,9 +448,13 @@
 }
 
 .dot-chart-point {
-  fill: var(--gold);
-  stroke: var(--bg-base);
-  stroke-width: 0.5;
+  width: 8px;
+  height: 8px;
+  background: var(--gold);
+  border: 2px solid var(--bg-base);
+  border-radius: 50%;
+  box-shadow: 0 0 8px rgba(240, 165, 0, 0.4);
+  z-index: 3;
 }
 
 .dot-chart-grid {

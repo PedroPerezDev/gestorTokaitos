@@ -322,11 +322,26 @@ export function Statistics() {
                     points={monthlyData.map((data, index) => {
                       const maxCount = Math.max(...monthlyData.map(d => d.count), 1);
                       const x = ((index + 0.5) / 12) * 100;
-                      const y = data.count > 0 ? 100 - ((data.count / maxCount) * 90) : 100;
+                      const y = data.count > 0 ? 100 - ((data.count / maxCount) * 85) : 100;
                       return `${x},${y}`;
                     }).join(' ')}
                     className="dot-chart-line"
                   />
+                  {monthlyData.map((data, index) => {
+                    if (data.count === 0) return null;
+                    const maxCount = Math.max(...monthlyData.map(d => d.count), 1);
+                    const x = ((index + 0.5) / 12) * 100;
+                    const y = 100 - ((data.count / maxCount) * 85);
+                    return (
+                      <circle
+                        key={index}
+                        cx={x}
+                        cy={y}
+                        r="1.5"
+                        className="dot-chart-point"
+                      />
+                    );
+                  })}
                 </svg>
                 <div className="dot-chart-grid">
                   {monthlyData.map((data, index) => {
@@ -337,16 +352,15 @@ export function Statistics() {
                         <div className="dot-chart-bar" style={{ height: '200px', position: 'relative' }}>
                           {data.count > 0 && (
                             <div
-                              className="dot-chart-dot"
+                              className="dot-count-label"
                               style={{
-                                bottom: `${(data.count / maxCount) * 180}px`,
+                                bottom: `${(data.count / maxCount) * 170 + 10}px`,
                                 left: '50%',
                                 transform: 'translateX(-50%)',
                                 position: 'absolute',
                               }}
-                              title={`${data.count} actuaciones`}
                             >
-                              <div className="dot-count">{data.count}</div>
+                              {data.count}
                             </div>
                           )}
                         </div>

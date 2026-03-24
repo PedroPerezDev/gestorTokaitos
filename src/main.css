@@ -441,10 +441,16 @@
 .dot-chart-line {
   fill: none;
   stroke: var(--gold);
-  stroke-width: 2;
+  stroke-width: 0.5;
   stroke-linecap: round;
   stroke-linejoin: round;
-  opacity: 0.6;
+  opacity: 0.7;
+}
+
+.dot-chart-point {
+  fill: var(--gold);
+  stroke: var(--bg-base);
+  stroke-width: 0.5;
 }
 
 .dot-chart-grid {
@@ -474,29 +480,13 @@
   position: relative;
 }
 
-.dot-chart-dot {
-  width: 24px;
-  height: 24px;
-  background: var(--gold);
-  border-radius: 50%;
-  box-shadow: 0 0 16px rgba(240, 165, 0, 0.6);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  position: absolute;
-  transition: transform 0.2s var(--ease);
-  cursor: pointer;
-}
-
-.dot-chart-dot:hover {
-  transform: scale(1.2);
-  box-shadow: 0 0 24px rgba(240, 165, 0, 0.8);
-}
-
-.dot-count {
-  font-size: 11px;
+.dot-count-label {
+  font-size: 13px;
   font-weight: 700;
-  color: var(--bg-base);
+  color: var(--gold);
+  font-family: var(--font-mono);
+  text-align: center;
+  white-space: nowrap;
 }
 
 .dot-chart-label {

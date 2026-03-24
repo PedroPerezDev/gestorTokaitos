@@ -209,17 +209,17 @@ export function PerformanceList() {
                     <button
                       onClick={() => handleToggleCollected(performance)}
                       className={`payment-collected-badge ${performance.payment_collected ? 'collected' : 'pending'}`}
-                      title={performance.payment_collected ? 'Cobrado' : 'Pendiente de cobro'}
+                      title={performance.payment_collected ? 'Pagado por el cliente' : 'Pendiente de cobro del cliente'}
                     >
                       {performance.payment_collected ? (
                         <>
                           <Check size={14} />
-                          <span>Cobrado</span>
+                          <span>Pagado</span>
                         </>
                       ) : (
                         <>
                           <X size={14} />
-                          <span>Sin cobrar</span>
+                          <span>Pendiente</span>
                         </>
                       )}
                     </button>
@@ -258,7 +258,7 @@ export function PerformanceList() {
 
                   <div className="performance-payment-info">
                     <div className="payment-row">
-                      <span className="payment-label">Total cobrado:</span>
+                      <span className="payment-label">Presupuesto:</span>
                       <span className="payment-amount">{(performance.total_amount || 0).toFixed(2)}€</span>
                     </div>
                     <div className="payment-row">

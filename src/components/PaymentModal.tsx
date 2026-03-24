@@ -118,7 +118,7 @@ export function PaymentModal({
             <h3>{performanceName}</h3>
             <div className="payment-summary">
               <div className="summary-item">
-                <span>Total cobrado:</span>
+                <span>Presupuesto:</span>
                 <strong>{totalAmount.toFixed(2)}€</strong>
               </div>
               <div className="summary-item">

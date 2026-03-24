@@ -202,11 +202,11 @@ export function PerformanceForm({ performance, attendees = [], onClose, onSave }
           </div>
 
           <div className="form-group">
-            <label htmlFor="totalAmount">Importe total a cobrar (€)</label>
+            <label htmlFor="totalAmount">Presupuesto (€)</label>
             <input
               id="totalAmount"
               type="number"
-              step="0.01"
+              step="any"
               value={totalAmount}
               onChange={(e) => setTotalAmount(e.target.value)}
               placeholder="0.00"
@@ -221,7 +221,7 @@ export function PerformanceForm({ performance, attendees = [], onClose, onSave }
                 onChange={(e) => setPaymentCollected(e.target.checked)}
                 style={{ width: 'auto', cursor: 'pointer' }}
               />
-              <span>Pago cobrado del cliente</span>
+              <span>Pagado por el cliente</span>
             </label>
           </div>
 
@@ -230,7 +230,7 @@ export function PerformanceForm({ performance, attendees = [], onClose, onSave }
             <input
               id="defaultPaymentAmount"
               type="number"
-              step="0.01"
+              step="any"
               value={defaultPaymentAmount}
               onChange={(e) => setDefaultPaymentAmount(e.target.value)}
               placeholder="0.00"

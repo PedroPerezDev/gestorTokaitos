@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { X, DollarSign, Check } from 'lucide-react';
+import { X, DollarSign, Check, Car } from 'lucide-react';
 import { api } from '../lib/api';
 
 interface Musician {
@@ -12,6 +12,7 @@ interface MusicianPayment {
   musician_id: string;
   amount: number;
   is_paid: boolean;
+  vehicle_payment?: number;
 }
 
 interface PaymentModalProps {
@@ -32,6 +33,7 @@ export function PaymentModal({
   onSave,
 }: PaymentModalProps) {
   const [payments, setPayments] = useState<Record<string, number>>({});
+  const [vehiclePayments, setVehiclePayments] = useState<Record<string, number>>({});
   const [paidStatus, setPaidStatus] = useState<Record<string, boolean>>({});
   const [loading, setLoading] = useState(true);
 
@@ -46,11 +48,16 @@ export function PaymentModal({
         acc[p.musician_id] = p.amount;
         return acc;
       }, {});
+      const vehicleMap = data.reduce((acc: Record<string, number>, p: any) => {
+        acc[p.musician_id] = p.vehicle_payment || 0;
+        return acc;
+      }, {});
       const paidMap = data.reduce((acc: Record<string, boolean>, p: any) => {
         acc[p.musician_id] = p.is_paid;
         return acc;
       }, {});
       setPayments(paymentsMap);
+      setVehiclePayments(vehicleMap);
       setPaidStatus(paidMap);
     } catch (error) {
       console.error('Error loading payments:', error);
@@ -64,6 +71,11 @@ export function PaymentModal({
     setPayments(prev => ({ ...prev, [musicianId]: amount }));
   };
 
+  const handleVehiclePaymentChange = (musicianId: string, value: string) => {
+    const amount = parseFloat(value) || 0;
+    setVehiclePayments(prev => ({ ...prev, [musicianId]: amount }));
+  };
+
   const handleTogglePaid = (musicianId: string) => {
     setPaidStatus(prev => ({ ...prev, [musicianId]: !prev[musicianId] }));
   };
@@ -72,8 +84,9 @@ export function PaymentModal({
     try {
       for (const musician of musicians) {
         const amount = payments[musician.id] || 0;
+        const vehiclePayment = vehiclePayments[musician.id] || 0;
         const isPaid = paidStatus[musician.id] || false;
-        await api.payments.setMusicianPayment(performanceId, musician.id, amount, isPaid);
+        await api.payments.setMusicianPayment(performanceId, musician.id, amount, isPaid, vehiclePayment);
       }
       onSave();
       onClose();
@@ -83,7 +96,11 @@ export function PaymentModal({
     }
   };
 
-  const totalToPay = Object.values(payments).reduce((sum, amount) => sum + amount, 0);
+  const totalToPay = Object.keys(payments).reduce((sum, musicianId) => {
+    const performanceAmount = payments[musicianId] || 0;
+    const vehicleAmount = vehiclePayments[musicianId] || 0;
+    return sum + performanceAmount + vehicleAmount;
+  }, 0);
   const remaining = totalAmount - totalToPay;
 
   return (
@@ -121,6 +138,7 @@ export function PaymentModal({
             <div className="payment-musicians-list">
               {musicians.map((musician) => {
                 const isPaid = paidStatus[musician.id] || false;
+                const totalForMusician = (payments[musician.id] || 0) + (vehiclePayments[musician.id] || 0);
                 return (
                   <div key={musician.id} className={`payment-musician-item ${isPaid ? 'paid' : ''}`}>
                     <div className="payment-musician-info">
@@ -131,7 +149,12 @@ export function PaymentModal({
                           {musician.name.charAt(0).toUpperCase()}
                         </div>
                       )}
-                      <span className="payment-musician-name">{musician.name}</span>
+                      <div className="payment-musician-details">
+                        <span className="payment-musician-name">{musician.name}</span>
+                        {totalForMusician > 0 && (
+                          <span className="payment-musician-total">Total: {totalForMusician.toFixed(2)}€</span>
+                        )}
+                      </div>
                     </div>
                     <div className="payment-controls">
                       <div className="payment-input-group">
@@ -142,7 +165,19 @@ export function PaymentModal({
                           step="0.01"
                           value={payments[musician.id] || 0}
                           onChange={(e) => handleAmountChange(musician.id, e.target.value)}
-                          placeholder="0.00"
+                          placeholder="Actuación"
+                        />
+                        <span className="currency">€</span>
+                      </div>
+                      <div className="payment-input-group vehicle-payment">
+                        <Car size={16} />
+                        <input
+                          type="number"
+                          min="0"
+                          step="0.01"
+                          value={vehiclePayments[musician.id] || 0}
+                          onChange={(e) => handleVehiclePaymentChange(musician.id, e.target.value)}
+                          placeholder="Coche"
                         />
                         <span className="currency">€</span>
                       </div>

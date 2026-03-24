@@ -126,14 +126,22 @@ export function PerformanceList() {
 
   const getTotalToPay = (performance: any) => {
     if (!performance.musician_payments) return 0;
-    return performance.musician_payments.reduce((sum: number, p: any) => sum + (parseFloat(p.amount) || 0), 0);
+    return performance.musician_payments.reduce((sum: number, p: any) => {
+      const performanceAmount = parseFloat(p.amount) || 0;
+      const vehicleAmount = parseFloat(p.vehicle_payment) || 0;
+      return sum + performanceAmount + vehicleAmount;
+    }, 0);
   };
 
   const getTotalPaid = (performance: any) => {
     if (!performance.musician_payments) return 0;
     return performance.musician_payments
       .filter((p: any) => p.is_paid)
-      .reduce((sum: number, p: any) => sum + (parseFloat(p.amount) || 0), 0);
+      .reduce((sum: number, p: any) => {
+        const performanceAmount = parseFloat(p.amount) || 0;
+        const vehicleAmount = parseFloat(p.vehicle_payment) || 0;
+        return sum + performanceAmount + vehicleAmount;
+      }, 0);
   };
 
   const getRemainingFunds = (performance: any) => {

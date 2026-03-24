@@ -187,7 +187,8 @@ export const api = {
           musician_payments(
             musician_id,
             amount,
-            is_paid
+            is_paid,
+            vehicle_payment
           )
         `)
         .order('date', { ascending: false });
@@ -498,7 +499,7 @@ export const api = {
   },
 
   payments: {
-    async setMusicianPayment(performanceId: string, musicianId: string, amount: number, isPaid: boolean = false): Promise<void> {
+    async setMusicianPayment(performanceId: string, musicianId: string, amount: number, isPaid: boolean = false, vehiclePayment: number = 0): Promise<void> {
       const { error } = await supabase
         .from('musician_payments')
         .upsert({
@@ -506,6 +507,7 @@ export const api = {
           musician_id: musicianId,
           amount,
           is_paid: isPaid,
+          vehicle_payment: vehiclePayment,
         }, {
           onConflict: 'performance_id,musician_id'
         });

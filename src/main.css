@@ -377,6 +377,128 @@
   text-align: right;
 }
 
+.chart-card-full {
+  grid-column: 1 / -1;
+}
+
+.chart-header-with-controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.year-selector {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  background: var(--bg-input);
+  padding: 8px 12px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+}
+
+.year-display {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--gold);
+  font-family: var(--font-mono);
+  min-width: 60px;
+  text-align: center;
+}
+
+.year-selector .btn-icon {
+  padding: 4px;
+  width: 32px;
+  height: 32px;
+}
+
+.year-selector .btn-icon:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.dot-chart {
+  padding: 20px 0;
+}
+
+.dot-chart-grid {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 8px;
+  padding: 0 20px;
+  margin-bottom: 20px;
+}
+
+.dot-chart-column {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+}
+
+.dot-chart-bar {
+  width: 100%;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  border-bottom: 2px solid var(--border);
+  position: relative;
+}
+
+.dot-chart-dot {
+  width: 24px;
+  height: 24px;
+  background: var(--gold);
+  border-radius: 50%;
+  box-shadow: 0 0 16px rgba(240, 165, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: absolute;
+  transition: transform 0.2s var(--ease);
+  cursor: pointer;
+}
+
+.dot-chart-dot:hover {
+  transform: scale(1.2);
+  box-shadow: 0 0 24px rgba(240, 165, 0, 0.8);
+}
+
+.dot-count {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--bg-base);
+}
+
+.dot-chart-label {
+  font-size: 12px;
+  color: var(--text-secondary);
+  font-weight: 600;
+  font-family: var(--font-mono);
+}
+
+.dot-chart-summary {
+  text-align: center;
+  padding: 16px;
+  background: var(--bg-input);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  margin: 0 20px;
+}
+
+.dot-chart-summary span {
+  font-size: 14px;
+  color: var(--text-secondary);
+}
+
+.dot-chart-summary strong {
+  color: var(--text-primary);
+  font-weight: 700;
+}
+
 /* ============================================================
    MUSICIAN CARDS
    ============================================================ */

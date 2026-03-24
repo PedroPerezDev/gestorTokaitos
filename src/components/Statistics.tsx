@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { TrendingUp, DollarSign, Users, Calendar, Award, FileText, X } from 'lucide-react';
+import { TrendingUp, DollarSign, Users, Calendar, Award, FileText, X, ChevronLeft, ChevronRight } from 'lucide-react';
 import { api } from '../lib/api';
 import type { Performance, Musician } from '../lib/supabase';
 
@@ -13,6 +13,7 @@ export function Statistics() {
   const [musicians, setMusicians] = useState<Musician[]>([]);
   const [loading, setLoading] = useState(true);
   const [showUnpaidModal, setShowUnpaidModal] = useState(false);
+  const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
 
   useEffect(() => {
     loadData();
@@ -33,6 +34,18 @@ export function Statistics() {
       setLoading(false);
     }
   };
+
+  const availableYears = Array.from(
+    new Set(performances.map(p => new Date(p.date).getFullYear()))
+  ).sort((a, b) => b - a);
+
+  if (availableYears.length > 0 && !availableYears.includes(selectedYear)) {
+    setSelectedYear(availableYears[0]);
+  }
+
+  const performancesInYear = performances.filter(
+    p => new Date(p.date).getFullYear() === selectedYear
+  );
 
   const totalPerformances = performances.length;
   const paidPerformances = performances.filter(p => p.payment_collected).length;
@@ -59,6 +72,15 @@ export function Statistics() {
 
   const paidPercentage = totalPerformances > 0 ? (paidPerformances / totalPerformances) * 100 : 0;
   const unpaidPercentage = totalPerformances > 0 ? (unpaidPerformances / totalPerformances) * 100 : 0;
+
+  const monthlyData = Array.from({ length: 12 }, (_, i) => {
+    const month = i + 1;
+    const count = performancesInYear.filter(p => {
+      const date = new Date(p.date);
+      return date.getMonth() + 1 === month;
+    }).length;
+    return { month, count };
+  });
 
   const createPieChart = (paid: number, unpaid: number) => {
     if (paid === 0 && unpaid === 0) return null;
@@ -257,6 +279,79 @@ export function Statistics() {
               </div>
             </div>
           </div>
+        </div>
+      </div>
+
+      <div className="chart-container">
+        <div className="chart-card chart-card-full">
+          <div className="chart-header-with-controls">
+            <h3 className="chart-title">Actuaciones por Mes</h3>
+            <div className="year-selector">
+              <button
+                onClick={() => {
+                  const currentIndex = availableYears.indexOf(selectedYear);
+                  if (currentIndex < availableYears.length - 1) {
+                    setSelectedYear(availableYears[currentIndex + 1]);
+                  }
+                }}
+                className="btn-icon"
+                disabled={availableYears.indexOf(selectedYear) === availableYears.length - 1}
+              >
+                <ChevronLeft size={20} />
+              </button>
+              <span className="year-display">{selectedYear}</span>
+              <button
+                onClick={() => {
+                  const currentIndex = availableYears.indexOf(selectedYear);
+                  if (currentIndex > 0) {
+                    setSelectedYear(availableYears[currentIndex - 1]);
+                  }
+                }}
+                className="btn-icon"
+                disabled={availableYears.indexOf(selectedYear) === 0}
+              >
+                <ChevronRight size={20} />
+              </button>
+            </div>
+          </div>
+          {performancesInYear.length > 0 ? (
+            <div className="dot-chart">
+              <div className="dot-chart-grid">
+                {monthlyData.map((data, index) => {
+                  const maxCount = Math.max(...monthlyData.map(d => d.count), 1);
+                  const monthName = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'][index];
+                  return (
+                    <div key={data.month} className="dot-chart-column">
+                      <div className="dot-chart-bar" style={{ height: '200px', position: 'relative' }}>
+                        {data.count > 0 && (
+                          <div
+                            className="dot-chart-dot"
+                            style={{
+                              bottom: `${(data.count / maxCount) * 180}px`,
+                              left: '50%',
+                              transform: 'translateX(-50%)',
+                              position: 'absolute',
+                            }}
+                            title={`${data.count} actuaciones`}
+                          >
+                            <div className="dot-count">{data.count}</div>
+                          </div>
+                        )}
+                      </div>
+                      <span className="dot-chart-label">{monthName}</span>
+                    </div>
+                  );
+                })}
+              </div>
+              <div className="dot-chart-summary">
+                <span>Total en {selectedYear}: <strong>{performancesInYear.length} actuaciones</strong></span>
+              </div>
+            </div>
+          ) : (
+            <div className="empty-state">
+              <p>No hay actuaciones en {selectedYear}</p>
+            </div>
+          )}
         </div>
       </div>
 

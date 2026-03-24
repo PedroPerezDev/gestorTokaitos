@@ -6,12 +6,15 @@ import { api } from '../lib/api';
 import type { Performance, PerformanceWithAttendees } from '../lib/supabase';
 import { generateFullPerformancePDF, generateMusiciansOnlyPDF } from '../lib/pdfGenerator';
 
+type FilterType = 'all' | 'collected' | 'not-collected' | 'paid-musicians' | 'unpaid-musicians';
+
 export function PerformanceList() {
   const [performances, setPerformances] = useState<Performance[]>([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [editingPerformance, setEditingPerformance] = useState<PerformanceWithAttendees | null>(null);
   const [paymentPerformance, setPaymentPerformance] = useState<Performance | null>(null);
+  const [filter, setFilter] = useState<FilterType>('all');
 
   const loadPerformances = async () => {
     setLoading(true);
@@ -150,6 +153,36 @@ export function PerformanceList() {
     return totalCollected - totalToPay;
   };
 
+  const getPaidMusiciansCount = (performance: any) => {
+    if (!performance.musician_payments) return 0;
+    return performance.musician_payments.filter((p: any) => p.is_paid).length;
+  };
+
+  const areAllMusiciansPaid = (performance: any) => {
+    const musicianCount = getMusicianCount(performance);
+    if (musicianCount === 0) return false;
+    const paidCount = getPaidMusiciansCount(performance);
+    return paidCount === musicianCount;
+  };
+
+  const getFilteredPerformances = () => {
+    return performances.filter((performance: any) => {
+      switch (filter) {
+        case 'collected':
+          return performance.payment_collected === true;
+        case 'not-collected':
+          return performance.payment_collected === false;
+        case 'paid-musicians':
+          return areAllMusiciansPaid(performance);
+        case 'unpaid-musicians':
+          return !areAllMusiciansPaid(performance) && getMusicianCount(performance) > 0;
+        case 'all':
+        default:
+          return true;
+      }
+    });
+  };
+
   const handleDownloadFull = async (performance: Performance) => {
     try {
       const fullPerformance = await api.performances.getById(performance.id);
@@ -183,6 +216,39 @@ export function PerformanceList() {
         </button>
       </div>
 
+      <div className="filter-bar" style={{ marginBottom: '24px' }}>
+        <button
+          onClick={() => setFilter('all')}
+          className={`filter-btn ${filter === 'all' ? 'active' : ''}`}
+        >
+          Todas
+        </button>
+        <button
+          onClick={() => setFilter('collected')}
+          className={`filter-btn ${filter === 'collected' ? 'active' : ''}`}
+        >
+          Cobradas
+        </button>
+        <button
+          onClick={() => setFilter('not-collected')}
+          className={`filter-btn ${filter === 'not-collected' ? 'active' : ''}`}
+        >
+          No cobradas
+        </button>
+        <button
+          onClick={() => setFilter('paid-musicians')}
+          className={`filter-btn ${filter === 'paid-musicians' ? 'active' : ''}`}
+        >
+          Músicos pagados
+        </button>
+        <button
+          onClick={() => setFilter('unpaid-musicians')}
+          className={`filter-btn ${filter === 'unpaid-musicians' ? 'active' : ''}`}
+        >
+          Músicos sin pagar
+        </button>
+      </div>
+
       {loading ? (
         <div className="loading">Cargando actuaciones...</div>
       ) : performances.length === 0 ? (
@@ -194,12 +260,14 @@ export function PerformanceList() {
         </div>
       ) : (
         <div className="performances-grid">
-          {performances.map((performance: any) => {
+          {getFilteredPerformances().map((performance: any) => {
             const musicians = getMusicians(performance);
             const musicianCount = getMusicianCount(performance);
             const totalToPay = getTotalToPay(performance);
             const totalPaid = getTotalPaid(performance);
             const remaining = getRemainingFunds(performance);
+            const paidMusiciansCount = getPaidMusiciansCount(performance);
+            const allMusiciansPaid = areAllMusiciansPaid(performance);
 
             return (
               <div key={performance.id} className="performance-card-new">
@@ -239,6 +307,25 @@ export function PerformanceList() {
                   <div className="performance-musicians-count">
                     <Users size={16} />
                     <span>{musicianCount} músico{musicianCount !== 1 ? 's' : ''}</span>
+                    {musicianCount > 0 && (
+                      <span style={{
+                        marginLeft: '8px',
+                        fontSize: '0.85rem',
+                        color: allMusiciansPaid ? '#22c55e' : '#f59e0b',
+                        fontWeight: 600,
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '4px'
+                      }}>
+                        <DollarSign size={12} />
+                        Pagados {paidMusiciansCount}/{musicianCount}
+                        {!allMusiciansPaid && musicianCount > 0 && (
+                          <span style={{ color: '#ef4444', marginLeft: '4px' }}>
+                            - Faltan {musicianCount - paidMusiciansCount}
+                          </span>
+                        )}
+                      </span>
+                    )}
                     {performance.planned_musicians > 0 && (
                       <span style={{
                         marginLeft: '8px',
@@ -246,7 +333,7 @@ export function PerformanceList() {
                         color: musicianCount >= performance.planned_musicians ? '#22c55e' : '#f59e0b',
                         fontWeight: 600
                       }}>
-                        ({musicianCount}/{performance.planned_musicians})
+                        ({musicianCount}/{performance.planned_musicians} planif.)
                         {musicianCount < performance.planned_musicians && (
                           <span style={{ color: '#ef4444', marginLeft: '4px' }}>
                             - Faltan {performance.planned_musicians - musicianCount}

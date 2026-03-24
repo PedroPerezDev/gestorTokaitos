@@ -2508,6 +2508,14 @@ a {
   .login-card {
     padding: 32px 24px;
   }
+
+  .musician-list-item {
+    padding: 20px 0 0 0;
+  }
+
+  .musician-list-photo {
+    padding-left: 20px;
+  }
 }
 
 @media (max-width: 480px) {

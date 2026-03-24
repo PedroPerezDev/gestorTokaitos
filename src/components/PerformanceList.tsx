@@ -405,21 +405,6 @@ export function PerformanceList() {
                         )}
                       </span>
                     )}
-                    {performance.planned_musicians > 0 && (
-                      <span style={{
-                        marginLeft: '8px',
-                        fontSize: '0.85rem',
-                        color: musicianCount >= performance.planned_musicians ? '#22c55e' : '#f59e0b',
-                        fontWeight: 600
-                      }}>
-                        ({musicianCount}/{performance.planned_musicians} planif.)
-                        {musicianCount < performance.planned_musicians && (
-                          <span style={{ color: '#ef4444', marginLeft: '4px' }}>
-                            - Faltan {performance.planned_musicians - musicianCount}
-                          </span>
-                        )}
-                      </span>
-                    )}
                   </div>
 
                   <div className="performance-payment-info">

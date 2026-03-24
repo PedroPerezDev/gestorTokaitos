@@ -316,56 +316,73 @@ export function Statistics() {
           </div>
           {performancesInYear.length > 0 ? (
             <div className="dot-chart">
-              <div className="dot-chart-container">
-                <svg className="dot-chart-svg-line" viewBox="0 0 100 100" preserveAspectRatio="none">
+              <div className="dot-chart-wrapper">
+                <svg className="dot-chart-svg" viewBox="0 0 1200 200" preserveAspectRatio="xMidYMid meet">
+                  <defs>
+                    <linearGradient id="lineGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                      <stop offset="0%" style={{ stopColor: 'var(--gold)', stopOpacity: 0.3 }} />
+                      <stop offset="50%" style={{ stopColor: 'var(--gold)', stopOpacity: 1 }} />
+                      <stop offset="100%" style={{ stopColor: 'var(--gold)', stopOpacity: 0.3 }} />
+                    </linearGradient>
+                  </defs>
+
                   <polyline
                     points={monthlyData.map((data, index) => {
                       const maxCount = Math.max(...monthlyData.map(d => d.count), 1);
-                      const x = ((index + 0.5) / 12) * 100;
-                      const y = data.count > 0 ? 100 - ((data.count / maxCount) * 85) : 100;
+                      const x = 50 + (index * 100);
+                      const y = data.count > 0 ? 180 - ((data.count / maxCount) * 140) : 180;
                       return `${x},${y}`;
                     }).join(' ')}
-                    className="dot-chart-line"
+                    fill="none"
+                    stroke="url(#lineGradient)"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
                   />
-                </svg>
-                <div className="dot-chart-grid">
+
                   {monthlyData.map((data, index) => {
+                    if (data.count === 0) return null;
                     const maxCount = Math.max(...monthlyData.map(d => d.count), 1);
-                    const monthName = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'][index];
+                    const x = 50 + (index * 100);
+                    const y = 180 - ((data.count / maxCount) * 140);
                     return (
-                      <div key={data.month} className="dot-chart-column">
-                        <div className="dot-chart-bar" style={{ height: '200px', position: 'relative' }}>
-                          {data.count > 0 && (
-                            <>
-                              <div
-                                className="dot-chart-point"
-                                style={{
-                                  bottom: `${(data.count / maxCount) * 170}px`,
-                                  left: '50%',
-                                  transform: 'translateX(-50%)',
-                                  position: 'absolute',
-                                }}
-                              />
-                              <div
-                                className="dot-count-label"
-                                style={{
-                                  bottom: `${(data.count / maxCount) * 170 + 10}px`,
-                                  left: '50%',
-                                  transform: 'translateX(-50%)',
-                                  position: 'absolute',
-                                }}
-                              >
-                                {data.count}
-                              </div>
-                            </>
-                          )}
-                        </div>
-                        <span className="dot-chart-label">{monthName}</span>
-                      </div>
+                      <g key={index}>
+                        <circle
+                          cx={x}
+                          cy={y}
+                          r="6"
+                          fill="var(--bg-base)"
+                          stroke="var(--gold)"
+                          strokeWidth="2"
+                        />
+                        <circle
+                          cx={x}
+                          cy={y}
+                          r="3"
+                          fill="var(--gold)"
+                        />
+                        <text
+                          x={x}
+                          y={y - 15}
+                          textAnchor="middle"
+                          fill="var(--gold)"
+                          fontSize="14"
+                          fontWeight="600"
+                        >
+                          {data.count}
+                        </text>
+                      </g>
                     );
                   })}
+                </svg>
+
+                <div className="dot-chart-labels">
+                  {['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'].map((monthName, index) => (
+                    <span key={index} className="dot-chart-month-label">{monthName}</span>
+                  ))}
                 </div>
               </div>
+
               <div className="dot-chart-summary">
                 <span>Total en {selectedYear}: <strong>{performancesInYear.length} actuaciones</strong></span>
               </div>

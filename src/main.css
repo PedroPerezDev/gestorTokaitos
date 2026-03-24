@@ -422,82 +422,31 @@
   padding: 20px 0;
 }
 
-.dot-chart-container {
-  position: relative;
-  padding: 0 20px;
-}
-
-.dot-chart-svg-line {
-  position: absolute;
-  top: 0;
-  left: 20px;
-  right: 20px;
-  width: calc(100% - 40px);
-  height: 200px;
-  pointer-events: none;
-  z-index: 1;
-}
-
-.dot-chart-line {
-  fill: none;
-  stroke: var(--gold);
-  stroke-width: 0.5;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-  opacity: 0.7;
-}
-
-.dot-chart-point {
-  width: 8px;
-  height: 8px;
-  background: var(--gold);
-  border: 2px solid var(--bg-base);
-  border-radius: 50%;
-  box-shadow: 0 0 8px rgba(240, 165, 0, 0.4);
-  z-index: 3;
-}
-
-.dot-chart-grid {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-end;
-  gap: 8px;
-  margin-bottom: 20px;
-  position: relative;
-  z-index: 2;
-}
-
-.dot-chart-column {
+.dot-chart-wrapper {
+  padding: 20px 40px 10px;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  gap: 12px;
-  flex: 1;
+  gap: 15px;
 }
 
-.dot-chart-bar {
+.dot-chart-svg {
   width: 100%;
-  display: flex;
-  align-items: flex-end;
-  justify-content: center;
-  border-bottom: 2px solid var(--border);
-  position: relative;
+  height: auto;
+  overflow: visible;
 }
 
-.dot-count-label {
-  font-size: 13px;
-  font-weight: 700;
-  color: var(--gold);
-  font-family: var(--font-mono);
-  text-align: center;
-  white-space: nowrap;
+.dot-chart-labels {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: 0;
+  padding: 0 50px;
 }
 
-.dot-chart-label {
+.dot-chart-month-label {
   font-size: 12px;
   color: var(--text-secondary);
-  font-weight: 600;
-  font-family: var(--font-mono);
+  text-align: center;
+  font-weight: 500;
 }
 
 .dot-chart-summary {

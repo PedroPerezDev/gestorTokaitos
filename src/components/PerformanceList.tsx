@@ -165,6 +165,16 @@ export function PerformanceList() {
     return paidCount === musicianCount;
   };
 
+  const getCompletionStatus = (performance: any) => {
+    const isCollected = performance.payment_collected;
+    const musicianCount = getMusicianCount(performance);
+    const allPaid = musicianCount > 0 ? areAllMusiciansPaid(performance) : true;
+
+    if (isCollected && allPaid) return 'complete';
+    if (!isCollected && !allPaid) return 'incomplete';
+    return 'partial';
+  };
+
   const getFilteredPerformances = () => {
     return performances.filter((performance: any) => {
       switch (filter) {
@@ -268,9 +278,10 @@ export function PerformanceList() {
             const remaining = getRemainingFunds(performance);
             const paidMusiciansCount = getPaidMusiciansCount(performance);
             const allMusiciansPaid = areAllMusiciansPaid(performance);
+            const completionStatus = getCompletionStatus(performance);
 
             return (
-              <div key={performance.id} className="performance-card-new">
+              <div key={performance.id} className={`performance-card-new status-${completionStatus}`}>
                 <div className="performance-card-header">
                   <div className="performance-title-row">
                     <h3>{performance.name}</h3>

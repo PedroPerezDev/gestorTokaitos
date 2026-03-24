@@ -420,14 +420,19 @@
 
 .dot-chart {
   padding: 20px 0;
+}
+
+.dot-chart-container {
   position: relative;
+  padding: 0 20px;
 }
 
 .dot-chart-svg {
   position: absolute;
-  top: 20px;
-  left: 0;
-  width: 100%;
+  top: 0;
+  left: 20px;
+  right: 20px;
+  width: calc(100% - 40px);
   height: 200px;
   pointer-events: none;
   z-index: 1;
@@ -447,7 +452,6 @@
   justify-content: space-between;
   align-items: flex-end;
   gap: 8px;
-  padding: 0 20px;
   margin-bottom: 20px;
   position: relative;
   z-index: 2;

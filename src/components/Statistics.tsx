@@ -316,43 +316,45 @@ export function Statistics() {
           </div>
           {performancesInYear.length > 0 ? (
             <div className="dot-chart">
-              <svg className="dot-chart-svg" viewBox="0 0 1200 240" preserveAspectRatio="none">
-                <polyline
-                  points={monthlyData.map((data, index) => {
+              <div className="dot-chart-container">
+                <svg className="dot-chart-svg" viewBox="0 0 100 100" preserveAspectRatio="none">
+                  <polyline
+                    points={monthlyData.map((data, index) => {
+                      const maxCount = Math.max(...monthlyData.map(d => d.count), 1);
+                      const x = ((index + 0.5) / 12) * 100;
+                      const y = data.count > 0 ? 100 - ((data.count / maxCount) * 90) : 100;
+                      return `${x},${y}`;
+                    }).join(' ')}
+                    className="dot-chart-line"
+                  />
+                </svg>
+                <div className="dot-chart-grid">
+                  {monthlyData.map((data, index) => {
                     const maxCount = Math.max(...monthlyData.map(d => d.count), 1);
-                    const x = (index * 100) + 50;
-                    const y = data.count > 0 ? 220 - ((data.count / maxCount) * 180) : 220;
-                    return `${x},${y}`;
-                  }).join(' ')}
-                  className="dot-chart-line"
-                />
-              </svg>
-              <div className="dot-chart-grid">
-                {monthlyData.map((data, index) => {
-                  const maxCount = Math.max(...monthlyData.map(d => d.count), 1);
-                  const monthName = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'][index];
-                  return (
-                    <div key={data.month} className="dot-chart-column">
-                      <div className="dot-chart-bar" style={{ height: '200px', position: 'relative' }}>
-                        {data.count > 0 && (
-                          <div
-                            className="dot-chart-dot"
-                            style={{
-                              bottom: `${(data.count / maxCount) * 180}px`,
-                              left: '50%',
-                              transform: 'translateX(-50%)',
-                              position: 'absolute',
-                            }}
-                            title={`${data.count} actuaciones`}
-                          >
-                            <div className="dot-count">{data.count}</div>
-                          </div>
-                        )}
+                    const monthName = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'][index];
+                    return (
+                      <div key={data.month} className="dot-chart-column">
+                        <div className="dot-chart-bar" style={{ height: '200px', position: 'relative' }}>
+                          {data.count > 0 && (
+                            <div
+                              className="dot-chart-dot"
+                              style={{
+                                bottom: `${(data.count / maxCount) * 180}px`,
+                                left: '50%',
+                                transform: 'translateX(-50%)',
+                                position: 'absolute',
+                              }}
+                              title={`${data.count} actuaciones`}
+                            >
+                              <div className="dot-count">{data.count}</div>
+                            </div>
+                          )}
+                        </div>
+                        <span className="dot-chart-label">{monthName}</span>
                       </div>
-                      <span className="dot-chart-label">{monthName}</span>
-                    </div>
-                  );
-                })}
+                    );
+                  })}
+                </div>
               </div>
               <div className="dot-chart-summary">
                 <span>Total en {selectedYear}: <strong>{performancesInYear.length} actuaciones</strong></span>

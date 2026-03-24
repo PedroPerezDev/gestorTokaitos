@@ -360,6 +360,15 @@ export const api = {
       default_payment_amount?: number;
       attendees: Array<{ type: 'musician'; id: string; instrumentId?: string } | { type: 'guest'; name: string; instrument?: string }>
     }): Promise<Performance> {
+      // Get the old default payment amount before updating
+      const { data: oldPerformance } = await supabase
+        .from('performances')
+        .select('default_payment_amount')
+        .eq('id', id)
+        .single();
+
+      const oldDefaultAmount = oldPerformance?.default_payment_amount || 0;
+
       const { data: updatedPerformance, error: perfError } = await supabase
         .from('performances')
         .update({
@@ -382,10 +391,30 @@ export const api = {
       // Get existing musicians with payments
       const { data: existingPayments } = await supabase
         .from('musician_payments')
-        .select('musician_id')
+        .select('musician_id, amount')
         .eq('performance_id', id);
 
       const existingMusicianIds = new Set(existingPayments?.map(p => p.musician_id) || []);
+
+      // If default payment amount changed, update musicians whose amount matches the old default
+      if (performance.default_payment_amount !== undefined &&
+          performance.default_payment_amount !== oldDefaultAmount &&
+          existingPayments && existingPayments.length > 0) {
+
+        const musiciansToUpdate = existingPayments
+          .filter(p => p.amount === oldDefaultAmount)
+          .map(p => p.musician_id);
+
+        if (musiciansToUpdate.length > 0) {
+          for (const musicianId of musiciansToUpdate) {
+            await supabase
+              .from('musician_payments')
+              .update({ amount: performance.default_payment_amount })
+              .eq('performance_id', id)
+              .eq('musician_id', musicianId);
+          }
+        }
+      }
 
       const { error: deleteError } = await supabase
         .from('attendance')

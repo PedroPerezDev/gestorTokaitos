@@ -79,21 +79,20 @@ export async function generateFullPerformancePDF(performance: PerformanceWithAtt
 
   doc.setFontSize(11);
   if (performance.attendees && performance.attendees.length > 0) {
-    const musicians = await getMusiciansWithInstruments(performance);
+    const musiciansByInstrument = await getMusiciansGroupedByInstrument(performance);
 
-    musicians.forEach((musician) => {
+    for (const [instrument, names] of Object.entries(musiciansByInstrument)) {
       if (yPosition > 270) {
         doc.addPage();
         yPosition = 20;
       }
 
+      doc.setFont('helvetica', 'bold');
+      doc.text(`${instrument}:`, 25, yPosition);
       doc.setFont('helvetica', 'normal');
-      const instrumentText = musician.instruments.length > 0
-        ? ` - ${musician.instruments.join(', ')}`
-        : '';
-      doc.text(`• ${musician.name}${instrumentText}`, 25, yPosition);
+      doc.text(names.join(', '), 25 + doc.getTextWidth(`${instrument}: `), yPosition);
       yPosition += 7;
-    });
+    }
   } else {
     doc.setFont('helvetica', 'italic');
     doc.text('No hay músicos asignados', 25, yPosition);
@@ -128,28 +127,20 @@ export async function generateMusiciansOnlyPDF(performance: PerformanceWithAtten
 
   doc.setFontSize(11);
   if (performance.attendees && performance.attendees.length > 0) {
-    const musicians = await getMusiciansWithInstruments(performance);
+    const musiciansByInstrument = await getMusiciansGroupedByInstrument(performance);
 
-    musicians.forEach((musician) => {
+    for (const [instrument, names] of Object.entries(musiciansByInstrument)) {
       if (yPosition > 270) {
         doc.addPage();
         yPosition = 20;
       }
 
       doc.setFont('helvetica', 'bold');
-      doc.text(`• ${musician.name}`, 25, yPosition);
-      yPosition += 6;
-
-      if (musician.instruments.length > 0) {
-        doc.setFont('helvetica', 'italic');
-        doc.setFontSize(10);
-        doc.text(`   ${musician.instruments.join(', ')}`, 25, yPosition);
-        doc.setFontSize(11);
-        yPosition += 7;
-      } else {
-        yPosition += 4;
-      }
-    });
+      doc.text(`${instrument}:`, 25, yPosition);
+      doc.setFont('helvetica', 'normal');
+      doc.text(names.join(', '), 25 + doc.getTextWidth(`${instrument}: `), yPosition);
+      yPosition += 7;
+    }
   } else {
     doc.setFont('helvetica', 'italic');
     doc.text('No hay músicos asignados', 25, yPosition);
@@ -157,6 +148,85 @@ export async function generateMusiciansOnlyPDF(performance: PerformanceWithAtten
 
   const fileName = `musicos_${performance.name.replace(/\s+/g, '_')}_${new Date().toISOString().split('T')[0]}.pdf`;
   doc.save(fileName);
+}
+
+async function getMusiciansGroupedByInstrument(performance: PerformanceWithAttendees): Promise<Record<string, string[]>> {
+  const { supabase } = await import('./supabase');
+  const instrumentGroups: Record<string, string[]> = {};
+
+  const { data: attendance } = await supabase
+    .from('attendance')
+    .select(`
+      musician_id,
+      guest_name,
+      guest_instrument,
+      selected_instrument_id,
+      musicians(id, name),
+      instruments:selected_instrument_id(name)
+    `)
+    .eq('performance_id', performance.id);
+
+  if (!attendance) return instrumentGroups;
+
+  const musicianIds = attendance
+    .filter((att: any) => att.musician_id)
+    .map((att: any) => att.musician_id);
+
+  let allInstrumentsByMusician: any = {};
+  if (musicianIds.length > 0) {
+    const { data: musicianInstruments } = await supabase
+      .from('musician_instruments')
+      .select(`
+        musician_id,
+        instruments(id, name)
+      `)
+      .in('musician_id', musicianIds);
+
+    allInstrumentsByMusician = musicianInstruments?.reduce((acc: any, mi: any) => {
+      if (!acc[mi.musician_id]) {
+        acc[mi.musician_id] = [];
+      }
+      acc[mi.musician_id].push(mi.instruments.name);
+      return acc;
+    }, {}) || {};
+  }
+
+  for (const att of attendance) {
+    if (att.musician_id && att.musicians) {
+      const selectedInstrument = att.instruments?.name;
+      const musicianName = att.musicians.name;
+
+      if (selectedInstrument) {
+        if (!instrumentGroups[selectedInstrument]) {
+          instrumentGroups[selectedInstrument] = [];
+        }
+        instrumentGroups[selectedInstrument].push(musicianName);
+      } else {
+        const allInstruments = allInstrumentsByMusician[att.musician_id] || ['Sin instrumento'];
+        allInstruments.forEach((instrument: string) => {
+          if (!instrumentGroups[instrument]) {
+            instrumentGroups[instrument] = [];
+          }
+          instrumentGroups[instrument].push(musicianName);
+        });
+      }
+    } else if (att.guest_name) {
+      const guestInstrument = att.guest_instrument || 'Sin instrumento';
+      if (!instrumentGroups[guestInstrument]) {
+        instrumentGroups[guestInstrument] = [];
+      }
+      instrumentGroups[guestInstrument].push(att.guest_name);
+    }
+  }
+
+  const sortedGroups: Record<string, string[]> = {};
+  Object.keys(instrumentGroups)
+    .sort()
+    .forEach(key => {
+      sortedGroups[key] = instrumentGroups[key].sort();
+    });
+
+  return sortedGroups;
 }
 
 async function getMusiciansWithInstruments(performance: PerformanceWithAttendees): Promise<MusicianWithInstrument[]> {

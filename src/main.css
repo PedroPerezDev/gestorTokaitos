@@ -923,10 +923,9 @@
 
 .payment-musician-item {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-  padding: 14px;
+  flex-direction: column;
+  gap: 14px;
+  padding: 16px;
   background: var(--bg-card);
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
@@ -946,7 +945,8 @@
 .payment-controls {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
+  flex-wrap: wrap;
 }
 
 .btn-paid-toggle {
@@ -960,6 +960,9 @@
   cursor: pointer;
   transition: all 0.2s var(--ease);
   white-space: nowrap;
+  flex: 1;
+  justify-content: center;
+  min-width: fit-content;
 }
 
 .btn-paid-toggle.paid {
@@ -1047,7 +1050,7 @@
 }
 
 .payment-input-group input {
-  width: 80px;
+  width: 90px;
   background: transparent;
   border: none;
   outline: none;

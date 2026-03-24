@@ -67,12 +67,12 @@ export function PaymentModal({
   };
 
   const handleAmountChange = (musicianId: string, value: string) => {
-    const amount = parseFloat(value) || 0;
+    const amount = value === '' ? 0 : parseFloat(value);
     setPayments(prev => ({ ...prev, [musicianId]: amount }));
   };
 
   const handleVehiclePaymentChange = (musicianId: string, value: string) => {
-    const amount = parseFloat(value) || 0;
+    const amount = value === '' ? 0 : parseFloat(value);
     setVehiclePayments(prev => ({ ...prev, [musicianId]: amount }));
   };
 
@@ -162,8 +162,8 @@ export function PaymentModal({
                         <input
                           type="number"
                           min="0"
-                          step="0.01"
-                          value={payments[musician.id] || 0}
+                          step="any"
+                          value={payments[musician.id] || ''}
                           onChange={(e) => handleAmountChange(musician.id, e.target.value)}
                           placeholder="Actuación"
                         />
@@ -174,8 +174,8 @@ export function PaymentModal({
                         <input
                           type="number"
                           min="0"
-                          step="0.01"
-                          value={vehiclePayments[musician.id] || 0}
+                          step="any"
+                          value={vehiclePayments[musician.id] || ''}
                           onChange={(e) => handleVehiclePaymentChange(musician.id, e.target.value)}
                           placeholder="Coche"
                         />

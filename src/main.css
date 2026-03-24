@@ -2510,11 +2510,35 @@ a {
   }
 
   .musician-list-item {
-    padding: 20px 0 0 0;
+    flex-direction: column;
+    padding: 24px 20px;
+    text-align: center;
   }
 
   .musician-list-photo {
-    padding-left: 20px;
+    width: 100px;
+    height: 100px;
+    margin: 0 auto;
+  }
+
+  .musician-list-content {
+    padding: 0;
+    align-items: center;
+  }
+
+  .musician-list-header {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .musician-list-info {
+    justify-content: center;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .musician-list-actions {
+    justify-content: center;
   }
 }
 

@@ -2596,6 +2596,15 @@ a {
 
   .stat-card {
     padding: 20px;
+    flex-direction: column;
+    text-align: center;
+    align-items: center;
+  }
+
+  .stat-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
   }
 
   .chart-container {
@@ -2658,6 +2667,13 @@ a {
     padding: 16px;
     flex-direction: column;
     text-align: center;
+    align-items: center;
+  }
+
+  .stat-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
   }
 
   .stat-icon {

@@ -20,6 +20,8 @@ export function MusicianList() {
   const [editingMusician, setEditingMusician] = useState<Musician | null>(null);
   const [selectedMusician, setSelectedMusician] = useState<Musician | null>(null);
   const [filterInstrument, setFilterInstrument] = useState('');
+  const [filterUnpaid, setFilterUnpaid] = useState(false);
+  const [filterPerformances, setFilterPerformances] = useState<'all' | 'low' | 'medium' | 'high'>('all');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc' | ''>('');
   const [instruments, setInstruments] = useState<string[]>([]);
   const [pendingPayments, setPendingPayments] = useState<Record<string, number>>({});
@@ -142,6 +144,21 @@ export function MusicianList() {
     setShowUnpaidPerformances(true);
   };
 
+  const filteredMusicians = musicians.filter(musician => {
+    if (filterUnpaid && !pendingPayments[musician.id]) {
+      return false;
+    }
+
+    if (filterPerformances !== 'all') {
+      const timesPlayed = musician.times_played || 0;
+      if (filterPerformances === 'low' && timesPlayed > 5) return false;
+      if (filterPerformances === 'medium' && (timesPlayed <= 5 || timesPlayed > 15)) return false;
+      if (filterPerformances === 'high' && timesPlayed <= 15) return false;
+    }
+
+    return true;
+  });
+
   return (
     <div className="musicians-view">
       <div className="view-header">
@@ -181,6 +198,27 @@ export function MusicianList() {
           </select>
         </div>
 
+        <div className="filter-group">
+          <select
+            value={filterPerformances}
+            onChange={(e) => setFilterPerformances(e.target.value as 'all' | 'low' | 'medium' | 'high')}
+            className="filter-select"
+          >
+            <option value="all">Todas las actuaciones</option>
+            <option value="low">Pocas actuaciones (≤5)</option>
+            <option value="medium">Actuaciones medias (6-15)</option>
+            <option value="high">Muchas actuaciones (&gt;15)</option>
+          </select>
+        </div>
+
+        <button
+          onClick={() => setFilterUnpaid(!filterUnpaid)}
+          className={`btn-filter ${filterUnpaid ? 'active' : ''}`}
+        >
+          <Filter size={20} />
+          Con pagos pendientes
+        </button>
+
         <button
           onClick={toggleSort}
           className={`btn-filter ${sortOrder ? 'active' : ''}`}
@@ -201,9 +239,20 @@ export function MusicianList() {
             Añadir primer músico
           </button>
         </div>
+      ) : filteredMusicians.length === 0 ? (
+        <div className="empty-state">
+          <p>No hay músicos que coincidan con los filtros seleccionados</p>
+          <button onClick={() => {
+            setFilterInstrument('');
+            setFilterUnpaid(false);
+            setFilterPerformances('all');
+          }} className="btn-secondary">
+            Limpiar filtros
+          </button>
+        </div>
       ) : (
         <div className="musicians-list">
-          {musicians.map((musician) => (
+          {filteredMusicians.map((musician) => (
             <MusicianCard
               key={musician.id}
               musician={musician}

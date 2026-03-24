@@ -65,12 +65,35 @@ export function PerformanceList() {
 
   const handleToggleCollected = async (performance: Performance) => {
     try {
+      const fullPerformance = await api.performances.getById(performance.id);
+
+      const attendees = fullPerformance.attendees.map((att: any) => {
+        if (att.type === 'musician' && att.id) {
+          return {
+            type: 'musician' as const,
+            id: att.id,
+            instrumentId: att.instrumentId,
+          };
+        } else {
+          return {
+            type: 'guest' as const,
+            name: att.name,
+            instrument: att.instrument,
+          };
+        }
+      });
+
       await api.performances.update(performance.id, {
         name: performance.name,
         date: performance.date,
-        payment_collected: !performance.payment_collected,
+        location: performance.location,
+        planned_musicians: performance.planned_musicians,
+        is_paid: performance.is_paid,
+        payment_amount: performance.payment_amount,
         total_amount: performance.total_amount,
-        attendees: [],
+        payment_collected: !performance.payment_collected,
+        default_payment_amount: performance.default_payment_amount,
+        attendees,
       });
       loadPerformances();
     } catch (error) {

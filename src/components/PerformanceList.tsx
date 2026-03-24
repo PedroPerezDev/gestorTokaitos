@@ -171,6 +171,7 @@ export function PerformanceList() {
     const musicianCount = getMusicianCount(performance);
     const allPaid = musicianCount > 0 ? areAllMusiciansPaid(performance) : true;
 
+    if (musicianCount === 0) return 'incomplete';
     if (isCollected && allPaid) return 'complete';
     if (!isCollected && !allPaid) return 'incomplete';
     return 'partial';

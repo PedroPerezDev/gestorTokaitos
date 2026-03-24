@@ -2534,3 +2534,141 @@ a {
     display: none;
   }
 }
+
+/* ============================================================
+   RESPONSIVE STATISTICS
+   ============================================================ */
+@media (max-width: 1024px) {
+  .statistics-view {
+    padding: 20px;
+  }
+
+  .stats-grid {
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  }
+
+  .chart-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .statistics-view {
+    padding: 16px;
+  }
+
+  .stats-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .stat-card {
+    padding: 20px;
+  }
+
+  .chart-container {
+    margin-top: 20px;
+  }
+
+  .chart-card {
+    padding: 20px;
+  }
+
+  .dot-chart-svg {
+    height: 180px;
+  }
+
+  .chart-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .ranking-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .ranking-musician {
+    width: 100%;
+  }
+
+  .ranking-stats {
+    width: 100%;
+    justify-content: flex-start;
+  }
+
+  .year-selector {
+    gap: 8px;
+  }
+
+  .chart-header-with-controls {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+}
+
+@media (max-width: 480px) {
+  .statistics-view {
+    padding: 12px;
+  }
+
+  .view-header h1 {
+    font-size: 24px;
+  }
+
+  .stat-number {
+    font-size: 28px;
+  }
+
+  .stat-card {
+    padding: 16px;
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .stat-icon {
+    width: 48px;
+    height: 48px;
+  }
+
+  .chart-title {
+    font-size: 16px;
+  }
+
+  .dot-chart-svg {
+    height: 150px;
+  }
+
+  .dot-chart-labels {
+    font-size: 10px;
+  }
+
+  .ranking-photo {
+    width: 32px;
+    height: 32px;
+  }
+
+  .section-header h2 {
+    font-size: 18px;
+  }
+
+  .modal-lg {
+    max-width: 100%;
+  }
+
+  .unpaid-performance-item {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .unpaid-performance-amount {
+    width: 100%;
+  }
+
+  .amount-badge {
+    width: 100%;
+    text-align: center;
+  }
+}

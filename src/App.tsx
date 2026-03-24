@@ -4,7 +4,7 @@ import { Login } from './components/Login';
 import { MusicianList } from './components/MusicianList';
 import { PerformanceList } from './components/PerformanceList';
 import { Statistics } from './components/Statistics';
-import { Music, Calendar, LogOut, TrendingUp } from 'lucide-react';
+import { Music, Calendar, LogOut, TrendingUp, Menu, X } from 'lucide-react';
 
 type View = 'musicians' | 'performances' | 'statistics';
 
@@ -14,6 +14,7 @@ function App() {
   const [currentView, setCurrentView] = useState<View>('musicians');
   const [statisticsKey, setStatisticsKey] = useState(0);
   const [musiciansKey, setMusiciansKey] = useState(0);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -52,11 +53,20 @@ function App() {
           <h1>Gestión de Banda</h1>
         </div>
 
-        <div className="navbar-menu">
+        <button
+          className="mobile-menu-toggle"
+          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+          aria-label="Toggle menu"
+        >
+          {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+        </button>
+
+        <div className={`navbar-menu ${mobileMenuOpen ? 'mobile-open' : ''}`}>
           <button
             onClick={() => {
               setCurrentView('musicians');
               setMusiciansKey(prev => prev + 1);
+              setMobileMenuOpen(false);
             }}
             className={`nav-button ${currentView === 'musicians' ? 'active' : ''}`}
           >
@@ -64,7 +74,10 @@ function App() {
             Músicos
           </button>
           <button
-            onClick={() => setCurrentView('performances')}
+            onClick={() => {
+              setCurrentView('performances');
+              setMobileMenuOpen(false);
+            }}
             className={`nav-button ${currentView === 'performances' ? 'active' : ''}`}
           >
             <Calendar size={20} />
@@ -74,6 +87,7 @@ function App() {
             onClick={() => {
               setCurrentView('statistics');
               setStatisticsKey(prev => prev + 1);
+              setMobileMenuOpen(false);
             }}
             className={`nav-button ${currentView === 'statistics' ? 'active' : ''}`}
           >
@@ -84,7 +98,7 @@ function App() {
 
         <button onClick={handleLogout} className="btn-logout">
           <LogOut size={20} />
-          Salir
+          <span className="logout-text">Salir</span>
         </button>
       </nav>
 

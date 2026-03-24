@@ -547,23 +547,22 @@ export const api = {
         `)
         .eq('musician_id', musicianId)
         .eq('is_paid', false)
-        .gt('amount', 0)
         .order('performances(date)', { ascending: false });
 
       if (error) throw error;
-      return data;
+      return data?.filter(p => (p.amount || 0) + (p.vehicle_payment || 0) > 0) || [];
     },
 
     async getPendingPaymentCount(musicianId: string): Promise<number> {
-      const { count, error } = await supabase
+      const { data, error } = await supabase
         .from('musician_payments')
-        .select('*', { count: 'exact', head: true })
+        .select('*')
         .eq('musician_id', musicianId)
-        .eq('is_paid', false)
-        .gt('amount', 0);
+        .eq('is_paid', false);
 
       if (error) throw error;
-      return count || 0;
+      const filtered = data?.filter(p => (p.amount || 0) + (p.vehicle_payment || 0) > 0) || [];
+      return filtered.length;
     },
   },
 };

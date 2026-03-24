@@ -4,6 +4,7 @@ import { api } from '../lib/api';
 
 interface UnpaidPerformance {
   amount: number;
+  vehicle_payment: number;
   is_paid: boolean;
   performances: {
     id: string;
@@ -47,7 +48,7 @@ export function UnpaidPerformancesModal({ musicianId, musicianName, onClose }: U
     }).format(date);
   };
 
-  const totalUnpaid = performances.reduce((sum, p) => sum + (p.amount || 0), 0);
+  const totalUnpaid = performances.reduce((sum, p) => sum + (p.amount || 0) + (p.vehicle_payment || 0), 0);
 
   return (
     <div className="modal-overlay" onClick={onClose}>
@@ -98,7 +99,7 @@ export function UnpaidPerformancesModal({ musicianId, musicianName, onClose }: U
                       gap: '4px'
                     }}>
                       <DollarSign size={18} />
-                      {perf.amount.toFixed(2)}€
+                      {((perf.amount || 0) + (perf.vehicle_payment || 0)).toFixed(2)}€
                     </div>
                   </div>
 

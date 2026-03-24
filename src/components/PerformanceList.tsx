@@ -6,7 +6,7 @@ import { api } from '../lib/api';
 import type { Performance, PerformanceWithAttendees } from '../lib/supabase';
 import { generateFullPerformancePDF, generateMusiciansOnlyPDF } from '../lib/pdfGenerator';
 
-type FilterType = 'all' | 'collected' | 'not-collected' | 'paid-musicians' | 'unpaid-musicians';
+type FilterType = 'all' | 'collected' | 'not-collected' | 'paid-musicians' | 'unpaid-musicians' | 'completed';
 
 export function PerformanceList() {
   const [performances, setPerformances] = useState<Performance[]>([]);
@@ -188,6 +188,8 @@ export function PerformanceList() {
           return areAllMusiciansPaid(performance);
         case 'unpaid-musicians':
           return !areAllMusiciansPaid(performance) && getMusicianCount(performance) > 0;
+        case 'completed':
+          return getCompletionStatus(performance) === 'complete';
         case 'all':
         default:
           return true;
@@ -259,6 +261,12 @@ export function PerformanceList() {
         >
           Músicos sin pagar
         </button>
+        <button
+          onClick={() => setFilter('completed')}
+          className={`filter-btn ${filter === 'completed' ? 'active' : ''}`}
+        >
+          Finalizadas
+        </button>
       </div>
 
       <div className="filter-bar-mobile" style={{ marginBottom: '24px' }}>
@@ -272,7 +280,8 @@ export function PerformanceList() {
               filter === 'collected' ? 'Cobradas' :
               filter === 'not-collected' ? 'No cobradas' :
               filter === 'paid-musicians' ? 'Músicos pagados' :
-              'Músicos sin pagar'
+              filter === 'unpaid-musicians' ? 'Músicos sin pagar' :
+              'Finalizadas'
             }</span>
             <ChevronDown size={16} />
           </button>
@@ -322,6 +331,15 @@ export function PerformanceList() {
                 className={filter === 'unpaid-musicians' ? 'active' : ''}
               >
                 Músicos sin pagar
+              </button>
+              <button
+                onClick={() => {
+                  setFilter('completed');
+                  setFilterDropdownOpen(false);
+                }}
+                className={filter === 'completed' ? 'active' : ''}
+              >
+                Finalizadas
               </button>
             </div>
           )}

@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
-import { Plus, Calendar, Users, CreditCard as Edit, Trash2, DollarSign, Check, X, Wallet, FileText, Download, ChevronDown } from 'lucide-react';
+import { Plus, Calendar, Users, CreditCard as Edit, Trash2, DollarSign, Check, X, Wallet, FileText, Download, ChevronDown, StickyNote } from 'lucide-react';
 import { PerformanceForm } from './PerformanceForm';
 import { PaymentModal } from './PaymentModal';
+import { PerformanceNotesModal } from './PerformanceNotesModal';
 import { api } from '../lib/api';
 import type { Performance, PerformanceWithAttendees } from '../lib/supabase';
 import { generateFullPerformancePDF, generateMusiciansOnlyPDF } from '../lib/pdfGenerator';
@@ -14,6 +15,7 @@ export function PerformanceList() {
   const [showForm, setShowForm] = useState(false);
   const [editingPerformance, setEditingPerformance] = useState<PerformanceWithAttendees | null>(null);
   const [paymentPerformance, setPaymentPerformance] = useState<Performance | null>(null);
+  const [notesPerformance, setNotesPerformance] = useState<Performance | null>(null);
   const [filter, setFilter] = useState<FilterType>('all');
   const [filterDropdownOpen, setFilterDropdownOpen] = useState(false);
 
@@ -214,6 +216,49 @@ export function PerformanceList() {
     } catch (error) {
       console.error('Error generating PDF:', error);
       alert('Error al generar el PDF');
+    }
+  };
+
+  const handleSaveNotes = async (notes: string) => {
+    if (!notesPerformance) return;
+
+    try {
+      const fullPerformance = await api.performances.getById(notesPerformance.id);
+
+      const attendees = fullPerformance.attendees.map((att: any) => {
+        if (att.type === 'musician' && att.id) {
+          return {
+            type: 'musician' as const,
+            id: att.id,
+            instrumentId: att.instrumentId,
+          };
+        } else {
+          return {
+            type: 'guest' as const,
+            name: att.name,
+            instrument: att.instrument,
+          };
+        }
+      });
+
+      await api.performances.update(notesPerformance.id, {
+        name: notesPerformance.name,
+        date: notesPerformance.date,
+        location: notesPerformance.location,
+        planned_musicians: notesPerformance.planned_musicians,
+        is_paid: notesPerformance.is_paid,
+        payment_amount: notesPerformance.payment_amount,
+        total_amount: notesPerformance.total_amount,
+        payment_collected: notesPerformance.payment_collected,
+        default_payment_amount: notesPerformance.default_payment_amount,
+        notes,
+        attendees,
+      });
+
+      loadPerformances();
+    } catch (error) {
+      console.error('Error saving notes:', error);
+      throw error;
     }
   };
 
@@ -448,6 +493,13 @@ export function PerformanceList() {
 
                 <div className="performance-card-actions">
                   <button
+                    onClick={() => setNotesPerformance(performance)}
+                    className="btn-action btn-notes"
+                    title="Notas de la actuación"
+                  >
+                    <StickyNote size={16} />
+                  </button>
+                  <button
                     onClick={() => setPaymentPerformance(performance)}
                     className="btn-action btn-payment"
                     title="Gestionar pagos"
@@ -508,6 +560,15 @@ export function PerformanceList() {
           totalAmount={paymentPerformance.total_amount || 0}
           onClose={() => setPaymentPerformance(null)}
           onSave={loadPerformances}
+        />
+      )}
+
+      {notesPerformance && (
+        <PerformanceNotesModal
+          performanceName={notesPerformance.name}
+          initialNotes={notesPerformance.notes || ''}
+          onClose={() => setNotesPerformance(null)}
+          onSave={handleSaveNotes}
         />
       )}
     </div>

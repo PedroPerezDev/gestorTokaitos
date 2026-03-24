@@ -358,6 +358,7 @@ export const api = {
       total_amount?: number;
       payment_collected?: boolean;
       default_payment_amount?: number;
+      notes?: string;
       attendees: Array<{ type: 'musician'; id: string; instrumentId?: string } | { type: 'guest'; name: string; instrument?: string }>
     }): Promise<Performance> {
       // Get the old default payment amount before updating
@@ -381,6 +382,7 @@ export const api = {
           total_amount: performance.total_amount,
           payment_collected: performance.payment_collected,
           default_payment_amount: performance.default_payment_amount,
+          notes: performance.notes,
         })
         .eq('id', id)
         .select()

@@ -34,6 +34,7 @@ export interface Performance {
   payment_amount: number | null;
   payment_date: string | null;
   planned_musicians: number;
+  notes: string;
 }
 
 export interface Attendance {

@@ -923,6 +923,16 @@
   border-color: var(--border-mid);
 }
 
+.btn-action.btn-notes {
+  background: rgba(139, 124, 248, 0.1);
+  border-color: var(--c-keys);
+  color: var(--c-keys);
+}
+
+.btn-action.btn-notes:hover {
+  background: rgba(139, 124, 248, 0.2);
+}
+
 .btn-action.btn-payment {
   background: var(--gold-dim);
   border-color: var(--gold);

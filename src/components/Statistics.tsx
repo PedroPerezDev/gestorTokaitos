@@ -316,6 +316,17 @@ export function Statistics() {
           </div>
           {performancesInYear.length > 0 ? (
             <div className="dot-chart">
+              <svg className="dot-chart-svg" viewBox="0 0 1200 240" preserveAspectRatio="none">
+                <polyline
+                  points={monthlyData.map((data, index) => {
+                    const maxCount = Math.max(...monthlyData.map(d => d.count), 1);
+                    const x = (index * 100) + 50;
+                    const y = data.count > 0 ? 220 - ((data.count / maxCount) * 180) : 220;
+                    return `${x},${y}`;
+                  }).join(' ')}
+                  className="dot-chart-line"
+                />
+              </svg>
               <div className="dot-chart-grid">
                 {monthlyData.map((data, index) => {
                   const maxCount = Math.max(...monthlyData.map(d => d.count), 1);

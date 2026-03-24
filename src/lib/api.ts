@@ -394,6 +394,28 @@ export const api = {
 
       if (deleteError) throw deleteError;
 
+      // Get the new list of musician IDs
+      const newMusicianIds = new Set(
+        performance.attendees
+          .filter(att => att.type === 'musician' && att.id)
+          .map(att => att.id)
+      );
+
+      // Delete payments for musicians no longer in the performance
+      const musiciansToRemove = Array.from(existingMusicianIds).filter(
+        id => !newMusicianIds.has(id)
+      );
+
+      if (musiciansToRemove.length > 0) {
+        const { error: deletePaymentError } = await supabase
+          .from('musician_payments')
+          .delete()
+          .eq('performance_id', id)
+          .in('musician_id', musiciansToRemove);
+
+        if (deletePaymentError) throw deletePaymentError;
+      }
+
       if (performance.attendees.length > 0) {
         const attendanceRecords = performance.attendees.map(attendee => {
           if (attendee.type === 'musician') {
